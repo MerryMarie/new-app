@@ -9,6 +9,17 @@
     >
       {{ text }}
     </v-snackbar>
+     <v-snackbar
+      v-model="snackbar_err"
+      :timeout="timeout"
+      color="red accent-2"
+      outlined
+    >
+    <p class="text-center pt-5">
+     {{ error }}
+    </p>
+      
+    </v-snackbar>
     <v-app-bar app class="my-5 mx-10 rounded-lg ">
         <v-toolbar-title>FIRENOTE</v-toolbar-title>
     
@@ -55,7 +66,7 @@
             </v-icon>
     </v-chip>
         <div  v-if="!logged">
-        <v-dialog v-model="dialog" persistent width="400" transition="dialog-bottom-transition">
+        <v-dialog v-model="dialog" persistent width="400" ><!--transition="dialog-bottom-transition"-->
             <template v-slot:activator="{ on, attrs }">
                 <v-btn v-on="on" plain fab small v-bind="attrs">
                                 <v-icon color="teal darken-4">fa fa-sign-in</v-icon>
@@ -78,6 +89,8 @@
                 <v-text-field
                 v-model="login"
                   label="Login*"
+                  :error-messages="hint"
+                :rules="[rules.required,rules.len]"
                   required
                 ></v-text-field>
               </v-col>
@@ -85,11 +98,24 @@
                 <v-text-field
                 v-model="pass"
                   label="Password*"
-                  type="password"
+                  :rules="[rules.required,rules.val,rules.len]"
+                  :error-messages="hint1"
                   required
+
+
+                   :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
+        
+                  :type="show ? 'text' : 'password'"        
+                  @click:append="show = !show"
                 ></v-text-field>
               </v-col>
                 </v-card-text>
+                Have no account? <a
+                        text
+                        @click="openDialog1"
+                    >
+                        Register
+                    </a>
                  <v-card-actions>
                         
                     
@@ -99,6 +125,7 @@
                     >
                         Login
                     </v-btn>
+                  
                 </v-card-actions>
             </v-card>
         </v-dialog></div>
@@ -109,9 +136,7 @@
                     </v-btn>
             </template>
         </div>
-                       
-
-
+                    
     </v-app-bar>
      <v-main app class="my-10 mx-7 rounded-lg ">
    
@@ -131,7 +156,14 @@
       width="400"
     >
      <v-card >
-     <v-card-title left class="pt-8 ">SETTINGS</v-card-title>
+     <v-card-title left class="pt-8 ">SETTINGS
+     <v-spacer></v-spacer>
+     <v-card-actions>
+   
+                        <v-btn x-small plain fab @click="drawer = false">
+                            <v-icon>fa fa-times</v-icon>
+                        </v-btn>
+                    </v-card-actions></v-card-title>
       <v-list
         nav
         dense
@@ -140,26 +172,69 @@
           v-model="group"
           active-class="deep-purple--text text--accent-4"
         >
-      
-        <!-- <v-list-item>
-            <v-list-item-title>Foo</v-list-item-title>
-          </v-list-item>
-
-          <v-list-item>
-            <v-list-item-title>Bar</v-list-item-title>
-          </v-list-item>
-
-          <v-list-item>
-            <v-list-item-title>Fizz</v-list-item-title>
-          </v-list-item>
-
-          <v-list-item>
-            <v-list-item-title>Buzz</v-list-item-title>
-          </v-list-item>--> 
         </v-list-item-group>
       </v-list></v-card>
     </v-navigation-drawer>
 
+
+<v-dialog v-model="dialog1" persistent width="400" ><!--transition="dialog-bottom-transition"-->
+            <v-card>
+                <v-card-title>
+                    <span class="text-h5">REGISTER</span>
+                        <v-spacer></v-spacer>
+                    <v-card-actions>
+                        
+                        
+                        <v-btn x-small plain fab @click="dialog1 = false">
+                            <v-icon>fa fa-times</v-icon>
+                        </v-btn>
+                    </v-card-actions>
+                </v-card-title>
+             <v-card-text>
+                  <v-col cols="12">
+                <v-text-field
+                v-model="login"
+                  label="Login*"
+                  :error-messages="hint1"
+                :rules="[rules.required,rules.len]"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <v-text-field
+                v-model="pass"
+                  label="Password*"
+                  :rules="[rules.required,rules.val,rules.len]"
+                  :error-messages="hint1"
+                  required
+
+
+                   :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+        
+                  :type="show1 ? 'text' : 'password'"        
+                  @click:append="show1 = !show1"
+                ></v-text-field>
+              </v-col>
+                </v-card-text>
+                Have a account? <a
+                        text
+                         @click="openDialog"
+                    >
+                        Login
+                    </a>
+                 <v-card-actions>
+                        
+                    
+                    <v-btn class="font-weight-bold"
+                        text
+                        @click="register"
+                    >
+                        Register
+                    </v-btn>
+                  
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
   </v-app>
 </template>
 <script>
@@ -171,7 +246,12 @@ export default {
  // components: { ProgressBar },
   data(){
     return {  
+      hint:"",
+      show:false,
+      show1:false,
+      hint1:"",
         dialog: false,
+         dialog1: false,
         bg: "#888b7a21",
         date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
         // dateFormatted: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
@@ -182,10 +262,21 @@ export default {
         user_name:'',
         count:0,
          snackbar: false,
+         snackbar_err: false,
         text: '',
         timeout: 1500,
         drawer: false,
       group: null,
+      error:'',
+      rules: {
+        required: value => !!value || 'Required',
+        len: value => value.length >= 5 || 'Min 5 chars',
+        val: function (value) {
+           var re = /^(?=.*\d)(?=.*[!@#$%^&*_])(?=.*[a-z])(?=.*[A-Z]).{1,}$/;
+           return re.test(value) || 'Must contain only latin chars,numbers and spesial chars';
+        }
+        
+      },
   };
   },
  computed: {
@@ -197,28 +288,57 @@ export default {
      ...mapActions('IPage',{
       setM:'setMsg'
     }),
+    openDialog:function(){
+         this.dialog=true; this.dialog1=false;
+        this.login='';this.pass='';
+    },
+    openDialog1:function(){
+       this.login='';this.pass='';
+        this.dialog1=true; this.dialog=false;
+    },
     is_logged:function(){
         return !this.logged;
     },
 
     register:function(){
-        if(this.login!=='' && this.pass!==''){
-            reg(this.login,this.pass);
-            this.text="You're logged in";
+      var f=(function(status,user,err){
+          if(status==200){
+            this.dialog1= false; this.logged=true;this.user_name=user;
+             this.text="You're registered";
             this.snackbar=true
-            //this.setM("You're logged in");
+          }else{
+            this.error=err;
+            this.snackbar_err=true;
+            this.login='';this.pass='';
+          }
+            }).bind(this);
+        if(this.login!=='' && this.pass!==''){
+            reg(this.login,this.pass,f);
+        }
+        if(this.pass!==''){
+            this.hint1="Password is required"
+        }
+         if(this.login!==''){
+            this.hint="Login is required"
         }
     },
     log_in:function(){
-        var f=(function(user){
+        var f=(function(status,user,err){
+          if(status==200){
             this.dialog= false; this.logged=true;this.user_name=user;
             //this.setM("You're logged in");
              this.text="You're logged in";
             this.snackbar=true
+          }else{
+            this.error=err;
+            this.snackbar_err=true;
+            this.login='';this.pass='';
+          }
             }).bind(this);
         if(this.login!=='' && this.pass!==''){
             log(this.login,this.pass,f);
         }
+
     },
     log_out:function(){
         var f=(function(status){if(status==200){this.dialog= false; this.logged=false;
@@ -266,6 +386,12 @@ export default {
       },
     date() {
       this.dateFormatted = this.formatDate(this.date)
+    },
+    login(){
+      this.hint="";
+    },
+    pass(){
+      this.hint1="";
     },
   },
 }
