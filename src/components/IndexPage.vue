@@ -1,16 +1,27 @@
 <template>
+<v-container fluid >
 <v-row
-
->
+ no-gutters
+> <v-col
+        cols="12"
+        md="1"
+      >
+        <v-container>
+          <v-card outlined
+          tile class="pa-7 rounded-lg"  style="height: 740px;" :elevation="7">
+       
+        </v-card >
+        </v-container>
+        </v-col>
   <v-col
         cols="12"
-        md="9"
+        md="8"
          
       >
-<v-container  >
+ <v-container  >
 <v-card outlined
           tile class="pa-7 rounded-lg"  style="height: 740px;" :elevation="7">
-  <v-alert
+ <!--<v-alert
       shaped
       outlined
       type="success"
@@ -46,20 +57,22 @@
                 hide-details
                 label="Choose your country"
     ></v-autocomplete>
-      </v-col>
+      </v-col>-->
         </v-card ></v-container></v-col>
 
   <v-col
-       
+       cols="12"
+        md="3"
       >
         <v-container>
           <v-card outlined
           tile class="pa-7 rounded-lg"  style="height: 740px;" :elevation="7">
-        hhh
+        
         </v-card >
         </v-container>
         </v-col>
 </v-row>
+</v-container>
 </template>
 
 <script>
@@ -68,7 +81,7 @@ import { getContryList} from '../data/api_handler';
 export default {
   name: 'IndexPage',
   data(){
-    return { sel:""};
+    return { sel:"",value:"recent"};
   },
  /* props: {
     sel: {
